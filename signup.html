@@ -55,26 +55,7 @@
         <button onclick="validate()">Submit</button>
     </div>
 
-    <script>
-        function validate() {
-            const email = document.getElementById('emailInput').value;
-            const code = document.getElementById('codeInput').value;
-            const encryptedCodes = ['YTExNTMy', 'QUkxMjM0', 'QUk5ODc2'];
-
-            if (!email || !code) {
-                alert('Please enter both your email and code.');
-                return;
-            }
-
-            const encodedCode = btoa(code);
-
-            if (encryptedCodes.includes(encodedCode)) {
-                window.location.href = 'https://edycyber.github.io/landingcreator/create.html';
-            } else {
-                window.location.href = 'https://foodiverse0.gumroad.com/l/ppu';
-            }
-        }
-    </script>
+    <script src="validate.js"></script>
 
 </body>
 </html>
