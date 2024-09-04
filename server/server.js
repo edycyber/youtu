@@ -1,3 +1,6 @@
+require('dotenv').config(); 
+
+// ... (rest of your server.js code)
 const express = require('express');
 const app = express();
 const { google } = require('googleapis'); // For YouTube Data API
@@ -5,7 +8,7 @@ const axios = require('axios'); // For making external API requests (if needed)
 // ... (require other necessary modules like body-parser, cors)
 
 // API Keys and Configuration
-const apiKey = 'AIzaSyA_ZLP3Ro8KAnWBFCwLKLbCllnp1PY07y4'; // Replace with your actual API key 
+const apiKey = process.env.API_KEY;
 const youtube = google.youtube({ version: 'v3', auth: apiKey });
 
 // Helper Functions (You'll need to implement the logic)
