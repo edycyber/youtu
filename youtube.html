@@ -1,0 +1,432 @@
+<html><head><base href="https://www.youtube-creator-helper.com/"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>YouTube Creator Helper - Comment Analyzer</title><style>
+    body {
+        font-family: 'Roboto', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        background-image: url('https://www.youtube-creator-helper.com/assets/modern-minimalist-bg.svg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+    }
+    .container {
+        flex: 1;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background-color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar {
+        width: 300px;
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+    h1, h2 {
+        color: #ff0000;
+        text-align: center;
+        font-weight: 300;
+    }
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: 30px;
+    }
+    h2 {
+        font-size: 1.8em;
+        margin-top: 40px;
+    }
+    #app {
+        background-color: transparent;
+        border-radius: 8px;
+        padding: 20px;
+    }
+    #channel-input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    #analyze-btn, #copy-ideas-btn, #sign-out-btn {
+        background-color: #ff0000;
+        color: #ffffff;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, transform 0.2s;
+        display: block;
+        margin: 20px auto;
+    }
+    #analyze-btn:hover, #copy-ideas-btn:hover, #sign-out-btn:hover {
+        background-color: #cc0000;
+        transform: translateY(-2px);
+    }
+    #results, #suggestions, #similar-channels {
+        margin-top: 30px;
+    }
+    .comment, .suggestion, .similar-video {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: box-shadow 0.3s;
+    }
+    .comment:hover, .suggestion:hover, .similar-video:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .comment h3, .suggestion h3, .similar-video h3 {
+        margin-top: 0;
+        color: #ff0000;
+        font-weight: 500;
+    }
+    .loading {
+        text-align: center;
+        font-style: italic;
+        color: #666;
+    }
+    .suggestion {
+        background-color: #e6f7ff;
+        border-color: #91d5ff;
+    }
+    .suggestion h3 {
+        color: #0050b3;
+    }
+    .similar-video {
+        background-color: #f6ffed;
+        border-color: #b7eb8f;
+    }
+    .similar-video h3 {
+        color: #389e0d;
+    }
+    .vote-btn, .save-btn {
+        background-color: #1890ff;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .vote-btn:hover, .save-btn:hover {
+        background-color: #096dd9;
+        transform: translateY(-2px);
+    }
+    .save-btn {
+        background-color: #52c41a;
+    }
+    .save-btn:hover {
+        background-color: #389e0d;
+    }
+    #saved-ideas-list {
+        margin-top: 20px;
+    }
+    .saved-idea {
+        background-color: #f0f2f5;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    #sign-out-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        margin: 0;
+    }
+</style></head><body>
+    <button id="sign-out-btn" onclick="location.href='index.html'">Sign Out</button>
+    <div class="sidebar">
+        <h2>Saved Ideas</h2>
+        <p>Note: These ideas are not permanently saved. We recommend copying them to a Word document for safekeeping.</p>
+        <div id="saved-ideas-list"></div>
+        <button id="copy-ideas-btn">Copy All Ideas</button>
+    </div>
+    <div class="container">
+        <div id="app">
+            <h1>YouTube Creator Helper</h1>
+            <p>Analyze your channel's comments to find valuable suggestions for new content!</p>
+            <input type="text" id="channel-input" placeholder="Enter your YouTube channel ID">
+            <button id="analyze-btn">Analyze Comments</button>
+            <div id="results"></div>
+            <div id="suggestions">
+                <h2>New Video Suggestions</h2>
+                <p>Vote on these AI-generated video ideas based on subscriber comments:</p>
+                <div id="suggestion-list"></div>
+            </div>
+            <div id="similar-channels">
+                <h2>Popular Videos from Similar Channels</h2>
+                <p>Get inspired by what's working for channels similar to yours:</p>
+                <div id="similar-video-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const channelInput = document.getElementById('channel-input');
+        const results = document.getElementById('results');
+        const suggestionList = document.getElementById('suggestion-list');
+        const similarVideoList = document.getElementById('similar-video-list');
+        const savedIdeasList = document.getElementById('saved-ideas-list');
+        const copyIdeasBtn = document.getElementById('copy-ideas-btn');
+
+        let savedIdeas = [];
+
+        analyzeBtn.addEventListener('click', async () => {
+            const channelId = channelInput.value.trim();
+            if (!channelId) {
+                alert('Please enter a valid YouTube channel ID');
+                return;
+            }
+
+            results.innerHTML = '<p class="loading">Analyzing comments... This may take a few moments.</p>';
+            suggestionList.innerHTML = '<p class="loading">Generating video suggestions...</p>';
+            similarVideoList.innerHTML = '<p class="loading">Finding popular videos from similar channels...</p>';
+
+            try {
+                const [commentsResponse, suggestionsResponse, similarVideosResponse] = await Promise.all([
+                    axios.get(`https://api.youtube-creator-helper.com/analyze-comments?channelId=${channelId}`),
+                    axios.get(`https://api.youtube-creator-helper.com/generate-suggestions?channelId=${channelId}`),
+                    axios.get(`https://api.youtube-creator-helper.com/similar-channels-videos?channelId=${channelId}`)
+                ]);
+
+                const comments = commentsResponse.data.suggestions;
+                const suggestions = suggestionsResponse.data.suggestions;
+                const similarVideos = similarVideosResponse.data.videos;
+
+                displayComments(comments);
+                displaySuggestions(suggestions);
+                displaySimilarVideos(similarVideos);
+            } catch (error) {
+                results.innerHTML = '<p>An error occurred while analyzing comments. Please try again later.</p>';
+                suggestionList.innerHTML = '<p>An error occurred while generating suggestions. Please try again later.</p>';
+                similarVideoList.innerHTML = '<p>An error occurred while fetching similar videos. Please try again later.</p>';
+                console.error('Error:', error);
+            }
+        });
+
+        function displayComments(comments) {
+            if (comments.length === 0) {
+                results.innerHTML = '<p>No suggestions found in the recent comments.</p>';
+            } else {
+                let html = '<h2>Suggestions from Comments:</h2>';
+                comments.forEach((comment, index) => {
+                    html += `
+                        <div class="comment">
+                            <h3>${comment.title}</h3>
+                            <p>${comment.content}</p>
+                            <p><strong>Likes:</strong> ${comment.likes} | <strong>Video:</strong> ${comment.videoTitle}</p>
+                            <button class="save-btn" onclick="saveIdea('comment', ${index})">💡 Save Idea</button>
+                        </div>
+                    `;
+                });
+                results.innerHTML = html;
+            }
+        }
+
+        function displaySuggestions(suggestions) {
+            if (suggestions.length === 0) {
+                suggestionList.innerHTML = '<p>No suggestions generated. Try analyzing more comments.</p>';
+            } else {
+                let html = '';
+                suggestions.forEach((suggestion, index) => {
+                    html += `
+                        <div class="suggestion">
+                            <h3>${suggestion.title}</h3>
+                            <p>${suggestion.description}</p>
+                            <button class="vote-btn" onclick="vote(${index}, 1)">👍 Upvote</button>
+                            <button class="vote-btn" onclick="vote(${index}, -1)">👎 Downvote</button>
+                            <span id="votes-${index}">Votes: ${suggestion.votes}</span>
+                            <button class="save-btn" onclick="saveIdea('suggestion', ${index})">💡 Save Idea</button>
+                        </div>
+                    `;
+                });
+                suggestionList.innerHTML = html;
+            }
+        }
+
+        function displaySimilarVideos(videos) {
+            if (videos.length === 0) {
+                similarVideoList.innerHTML = '<p>No similar videos found. Try adjusting your channel content or tags.</p>';
+            } else {
+                let html = '';
+                videos.forEach((video, index) => {
+                    html += `
+                        <div class="similar-video">
+                            <h3>${video.title}</h3>
+                            <p><strong>Channel:</strong> ${video.channelTitle}</p>
+                            <p><strong>Views:</strong> ${video.views.toLocaleString()} | <strong>Likes:</strong> ${video.likes.toLocaleString()}</p>
+                            <p>${video.description}</p>
+                            <button class="save-btn" onclick="saveIdea('similar', ${index})">💡 Save Idea</button>
+                        </div>
+                    `;
+                });
+                similarVideoList.innerHTML = html;
+            }
+        }
+
+        function vote(index, value) {
+            const voteSpan = document.getElementById(`votes-${index}`);
+            const currentVotes = parseInt(voteSpan.textContent.split(': ')[1]);
+            const newVotes = currentVotes + value;
+            voteSpan.textContent = `Votes: ${newVotes}`;
+            
+            // Here you would typically send this vote to your backend
+            console.log(`Voted ${value} for suggestion ${index}`);
+        }
+
+        function saveIdea(type, index) {
+            let idea;
+            if (type === 'comment') {
+                const commentElement = document.querySelectorAll('.comment')[index];
+                const title = commentElement.querySelector('h3').textContent;
+                const content = commentElement.querySelector('p').textContent;
+                idea = { title, description: content };
+            } else if (type === 'suggestion') {
+                const suggestionElement = document.querySelectorAll('.suggestion')[index];
+                const title = suggestionElement.querySelector('h3').textContent;
+                const description = suggestionElement.querySelector('p').textContent;
+                idea = { title, description };
+            } else if (type === 'similar') {
+                const videoElement = document.querySelectorAll('.similar-video')[index];
+                const title = videoElement.querySelector('h3').textContent;
+                const description = videoElement.querySelector('p:last-of-type').textContent;
+                idea = { title, description };
+            }
+            
+            if (idea) {
+                savedIdeas.push(idea);
+                updateSavedIdeasList();
+                alert('Idea saved! You can find it in your saved ideas list.');
+            }
+        }
+
+        function updateSavedIdeasList() {
+            savedIdeasList.innerHTML = savedIdeas.map((idea, index) => `
+                <div class="saved-idea">
+                    <h3>${idea.title}</h3>
+                    <p>${idea.description}</p>
+                </div>
+            `).join('');
+        }
+
+        copyIdeasBtn.addEventListener('click', () => {
+            const ideasText = savedIdeas.map(idea => `${idea.title}\n${idea.description}\n\n`).join('');
+            navigator.clipboard.writeText(ideasText).then(() => {
+                alert('All saved ideas have been copied to your clipboard!');
+            }, (err) => {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy ideas. Please try again.');
+            });
+        });
+
+        // Simulated API responses for demonstration purposes
+        axios.get = async (url) => {
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+            if (url.includes('analyze-comments')) {
+                return {
+                    data: {
+                        suggestions: [
+                            {
+                                title: "New Video Idea: JavaScript Basics",
+                                content: "Hey, I love your coding tutorials! Could you make a video on JavaScript basics for beginners?",
+                                likes: 15,
+                                videoTitle: "Python for Beginners"
+                            },
+                            {
+                                title: "Request: Web Design Trends 2023",
+                                content: "Your design videos are awesome! Can you do one on the latest web design trends for 2023?",
+                                likes: 22,
+                                videoTitle: "CSS Grid Tutorial"
+                            },
+                            {
+                                title: "Suggestion: Freelancing Tips",
+                                content: "As a fellow freelancer, I'd love to see a video on how you manage your time and clients!",
+                                likes: 18,
+                                videoTitle: "How to Start Freelancing"
+                            }
+                        ]
+                    }
+                };
+            } else if (url.includes('generate-suggestions')) {
+                return {
+                    data: {
+                        suggestions: [
+                            {
+                                title: "10 Essential JavaScript Concepts for Beginners",
+                                description: "Cover the fundamentals of JavaScript, including variables, functions, and basic DOM manipulation.",
+                                votes: 0
+                            },
+                            {
+                                title: "Web Design Trends 2023: What's Hot and What's Not",
+                                description: "Explore the latest trends in web design, from minimalism to bold typography and microinteractions.",
+                                votes: 0
+                            },
+                            {
+                                title: "Freelancer's Guide: Time Management and Client Relations",
+                                description: "Share tips on how to balance multiple projects, set boundaries, and maintain professional relationships with clients.",
+                                votes: 0
+                            },
+                            {
+                                title: "From Beginner to Pro: Building a Responsive Portfolio Website",
+                                description: "Walk through the process of creating a professional portfolio site using HTML, CSS, and JavaScript.",
+                                votes: 0
+                            }
+                        ]
+                    }
+                };
+            } else if (url.includes('similar-channels-videos')) {
+                return {
+                    data: {
+                        videos: [
+                            {
+                                title: "5 Web Development Trends You Can't Ignore in 2023",
+                                channelTitle: "CodeMaster",
+                                views: 250000,
+                                likes: 15000,
+                                description: "Stay ahead of the curve with these cutting-edge web development trends that are shaping the industry in 2023."
+                            },
+                            {
+                                title: "How I Made $10,000 in My First Month of Freelancing",
+                                channelTitle: "Freelance Guru",
+                                views: 500000,
+                                likes: 30000,
+                                description: "Learn the strategies I used to kickstart my freelancing career and earn a five-figure income in just 30 days."
+                            },
+                            {
+                                title: "Master React Hooks in 60 Minutes",
+                                channelTitle: "React Ninja",
+                                views: 750000,
+                                likes: 50000,
+                                description: "A comprehensive guide to using React Hooks effectively in your projects, with practical examples and best practices."
+                            },
+                            {
+                                title: "The Ultimate Guide to SEO for Developers",
+                                channelTitle: "SEO Wizards",
+                                views: 300000,
+                                likes: 20000,
+                                description: "Discover how to optimize your web applications for search engines and boost your site's visibility in search results."
+                            }
+                        ]
+                    }
+                };
+            }
+        };
+    </script>
+</body></html>
