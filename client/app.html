@@ -1,4 +1,4 @@
-<html><head><base href="https://www.youtube-creator-helper.com/"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>YouTube Creator Helper - Comment Analyzer</title><style>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>YouTube Creator Helper - Comment Analyzer</title><style>
     body {
         font-family: 'Roboto', Arial, sans-serif;
         line-height: 1.6;
@@ -201,9 +201,9 @@
 
             try {
                 const [commentsResponse, suggestionsResponse, similarVideosResponse] = await Promise.all([
-                    axios.get(`https://api.youtube-creator-helper.com/analyze-comments?channelId=${channelId}`),
-                    axios.get(`https://api.youtube-creator-helper.com/generate-suggestions?channelId=${channelId}`),
-                    axios.get(`https://api.youtube-creator-helper.com/similar-channels-videos?channelId=${channelId}`)
+                    axios.get(`https://edycyber.github.io/youtu/client/analyze-comments?channelId=${channelId}`),
+                    axios.get(`https://edycyber.github.io/youtu/client/generate-suggestions?channelId=${channelId}`),
+                    axios.get(`https://edycyber.github.io/youtu/client/similar-channels-videos?channelId=${channelId}`)
                 ]);
 
                 const comments = commentsResponse.data.suggestions;
