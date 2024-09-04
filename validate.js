@@ -1,12 +1,6 @@
 function validate() {
-    const email = document.getElementById('emailInput').value;
-    const code = document.getElementById('codeInput').value;
+    const code = document.getElementById('codeInput').value.trim();
     
-    if (!email || !code) {
-        alert('Please enter both your email and code.');
-        return;
-    }
-
     const validCodes = ['AI1532', 'AI1234', 'AI9876'];
 
     if (validCodes.includes(code)) {
