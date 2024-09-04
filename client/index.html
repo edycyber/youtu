@@ -336,97 +336,25 @@
             });
         });
 
-        // Simulated API responses for demonstration purposes
-        axios.get = async (url) => {
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
-            if (url.includes('analyze-comments')) {
-                return {
-                    data: {
-                        suggestions: [
-                            {
-                                title: "New Video Idea: JavaScript Basics",
-                                content: "Hey, I love your coding tutorials! Could you make a video on JavaScript basics for beginners?",
-                                likes: 15,
-                                videoTitle: "Python for Beginners"
-                            },
-                            {
-                                title: "Request: Web Design Trends 2023",
-                                content: "Your design videos are awesome! Can you do one on the latest web design trends for 2023?",
-                                likes: 22,
-                                videoTitle: "CSS Grid Tutorial"
-                            },
-                            {
-                                title: "Suggestion: Freelancing Tips",
-                                content: "As a fellow freelancer, I'd love to see a video on how you manage your time and clients!",
-                                likes: 18,
-                                videoTitle: "How to Start Freelancing"
-                            }
-                        ]
-                    }
-                };
-            } else if (url.includes('generate-suggestions')) {
-                return {
-                    data: {
-                        suggestions: [
-                            {
-                                title: "10 Essential JavaScript Concepts for Beginners",
-                                description: "Cover the fundamentals of JavaScript, including variables, functions, and basic DOM manipulation.",
-                                votes: 0
-                            },
-                            {
-                                title: "Web Design Trends 2023: What's Hot and What's Not",
-                                description: "Explore the latest trends in web design, from minimalism to bold typography and microinteractions.",
-                                votes: 0
-                            },
-                            {
-                                title: "Freelancer's Guide: Time Management and Client Relations",
-                                description: "Share tips on how to balance multiple projects, set boundaries, and maintain professional relationships with clients.",
-                                votes: 0
-                            },
-                            {
-                                title: "From Beginner to Pro: Building a Responsive Portfolio Website",
-                                description: "Walk through the process of creating a professional portfolio site using HTML, CSS, and JavaScript.",
-                                votes: 0
-                            }
-                        ]
-                    }
-                };
-            } else if (url.includes('similar-channels-videos')) {
-                return {
-                    data: {
-                        videos: [
-                            {
-                                title: "5 Web Development Trends You Can't Ignore in 2023",
-                                channelTitle: "CodeMaster",
-                                views: 250000,
-                                likes: 15000,
-                                description: "Stay ahead of the curve with these cutting-edge web development trends that are shaping the industry in 2023."
-                            },
-                            {
-                                title: "How I Made $10,000 in My First Month of Freelancing",
-                                channelTitle: "Freelance Guru",
-                                views: 500000,
-                                likes: 30000,
-                                description: "Learn the strategies I used to kickstart my freelancing career and earn a five-figure income in just 30 days."
-                            },
-                            {
-                                title: "Master React Hooks in 60 Minutes",
-                                channelTitle: "React Ninja",
-                                views: 750000,
-                                likes: 50000,
-                                description: "A comprehensive guide to using React Hooks effectively in your projects, with practical examples and best practices."
-                            },
-                            {
-                                title: "The Ultimate Guide to SEO for Developers",
-                                channelTitle: "SEO Wizards",
-                                views: 300000,
-                                likes: 20000,
-                                description: "Discover how to optimize your web applications for search engines and boost your site's visibility in search results."
-                            }
-                        ]
-                    }
-                };
-            }
-        };
+        // ... (rest of your JavaScript)
+
+analyzeBtn.addEventListener('click', async () => {
+    // ... (get channelId)
+
+    try {
+        const [commentsResponse, suggestionsResponse, similarVideosResponse] = await Promise.all([
+            fetch(`http://localhost:3000/analyze-comments?channelId=${channelId}`), 
+            fetch(`http://localhost:3000/generate-suggestions?channelId=${channelId}`),
+            fetch(`http://localhost:3000/similar-channels-videos?channelId=${channelId}`)
+        ]);
+
+        // ... (process responses as JSON)
+
+    } catch (error) {
+        // ... (handle errors)
+    }
+});
+
+// ... (rest of your JavaScript)
     </script>
 </body></html>
