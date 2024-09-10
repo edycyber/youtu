@@ -343,9 +343,9 @@ analyzeBtn.addEventListener('click', async () => {
 
     try {
         const [commentsResponse, suggestionsResponse, similarVideosResponse] = await Promise.all([
-            fetch(`http://localhost:3000/analyze-comments?channelId=${channelId}`), 
-            fetch(`http://localhost:3000/generate-suggestions?channelId=${channelId}`),
-            fetch(`http://localhost:3000/similar-channels-videos?channelId=${channelId}`)
+            fetch(`https://edycyber.github.io/youtu/analyze-comments?channelId=${channelId}`), 
+            fetch(`https://edycyber.github.io/youtu/generate-suggestions?channelId=${channelId}`),
+            fetch(`https://edycyber.github.io/youtu/similar-channels-videos?channelId=${channelId}`)
         ]);
 
         // ... (process responses as JSON)
